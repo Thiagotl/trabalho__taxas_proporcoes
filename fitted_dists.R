@@ -1,42 +1,72 @@
-# Loading packages -------------------------------------------------------------
+# Loading packages and functions -----------------------------------------------
 suppressPackageStartupMessages(library(gamlss))
 suppressPackageStartupMessages(library(dplyr))
 
 # Functions for Estimating the Parameters of Distributions
 source("Estimation_gamlss.R")
-# PDF and CDF Functions of Distributions
-source("Dist_functions.R")
 
-ruchen <- function(n, mu, sigma) {
-  u <- runif(n)
-  return(
-    exp(-(log(1 - log(u) / mu)**(1 / sigma)))
-  )
+# Function to extract fit quality metrics
+extract_fit <- function(estimation) {
+  c(estimation$P.deviance, estimation$aic, estimation$sbc)
 }
 
-y <- ruchen(200,1,1)
+# fit2 <- c(mod2$W, mod2$A, mod2$KS$statistic, mod2$AIC, mod2$BIC, mod2$HQIC)
+
+data <- runif(1000)
+
+
+# Estimando os ajustes ---------------------------------------------------------
 
 # BETA Original
-par_be <- fitted_dist(y = y, family = "BEo")
-fit2 <- c(mod2$W, mod2$A, mod2$KS$statistic, mod2$AIC, mod2$BIC, mod2$HQIC)
+estimation_beta <- fitted_dist(y = data, family = "BEo")
+fit1 <- extract_fit(estimation_beta)
 
-# KW
-source("KW.R")
-par_kw <- fitted_dist(y = y, family = "KW")
+# Beta reparametrizada na média
+estimation_betamean <- fitted_dist(y = data, family = "BE")
+fit2 <- extract_fit(estimation_betamean)
+
+# Simplex
+estimation_simplex <- fitted_dist(y = data, family = "SIMPLEX")
+fit3 <- extract_fit(estimation_simplex)
+
+# Unit Gamma
+estimation_ugamma <- fitted_dist(y = data, family = "UG")
+fit4 <- extract_fit(estimation_ugamma)
+
+# Unit Lindley
+estimation_ulindley <- fitted_dist(y = data, family = "UL")
+fit5 <- extract_fit(estimation_ulindley)
+
+# Unit Weibull
+estimation_uweibull <- fitted_dist(y = data, family = "UW")
+fit6 <- extract_fit(estimation_uweibull)
+
+# Kumaraswamy
+estimation_kumaraswamy <- fitted_dist(y = data, family = "KW")
+fit7 <- extract_fit(estimation_kumaraswamy)
+
+# Unit Chen
+estimation_uchen <- fitted_dist(y = data, family = "UC")
+fit8 <- extract_fit(estimation_uchen)
+
+# Unit Triangular
+estimation_utriangular <- fitted_dist(y = data, family = "TRI")
+fit9 <- extract_fit(estimation_utriangular)
+
+# Unit Gompertz
+estimation_ugompertz <- fitted_dist(y = data, family = "UGo")
+fit10 <- extract_fit(estimation_ugompertz)
 
 
+# Comparing Fits ---------------------------------------------------------------
 
-
-
-# Análise dos Ajustes----
 nomes <- c(
-  "ACOSKW", "BETA", "KW", "MKW", "MRKW", "UBIRNBAUM", "UBURRXII", "UDAGUMI", "UDAGUMII", "UGAMMA",
-  "UGHN", "UGOMPERTZ", "ULINDLEY", "ULINDLEYI", "UTOPPLEONY", "UTOPPLEONYI", "UWEIBULL", "SKW", "SUBURRXII"
+  "Beta", "Beta_m", "Simplex", "UGamma", "ULindley", "UWeibull", "Kumaraswamy",
+  "UChen", "Triangular", "UGomportez"
 )
-kappa <- c(1:19)
-results <- matrix(0, ncol = 6, nrow = length(kappa))
-colnames(results) <- c("W", "A", "KS", "AIC", "BIC", "HQIC")
-rownames(results) <- nomes[kappa]
+results <- matrix(0, ncol = 3, nrow = 10)
+colnames(results) <- c("GD", "AIC", "SBC")
+rownames(results) <- nomes
 
 results[1, ] <- fit1
 results[2, ] <- fit2
@@ -48,41 +78,5 @@ results[7, ] <- fit7
 results[8, ] <- fit8
 results[9, ] <- fit9
 results[10, ] <- fit10
-results[11, ] <- fit11
-results[12, ] <- fit12
-results[13, ] <- fit13
-results[14, ] <- fit14
-results[15, ] <- fit15
-results[16, ] <- fit16
-results[17, ] <- fit17
-results[18, ] <- fit18
-results[19, ] <- fit19
 
-# #Retira as linhas com zeros (toda nula)
-# results_filtrado <- results[apply(results, 1, function(x) any(x != 0)), ]
-#
-# #Ordena a matriz pela coluna escolhida dentro do arrange
-# results_ordenado <- results_filtrado %>%
-#   as.data.frame() %>%  # Converter matriz em data frame
-#   arrange(W) %>%      # Ordenar pela segunda coluna
-#   as.matrix()          # Converter de volta para matriz
-#
-# results_ordenado
-
-# Retirando as linhas com NAN
-results_filtrado <- results[complete.cases(results), ]
-
-# Retira as linhas com zeros (toda nula) e Ordenar por coluna
-results_final <- results_filtrado %>%
-  as.data.frame() %>% # Converte a matriz para data frame
-  filter(apply(., 1, function(x) any(x != 0))) %>% # Filtra linhas sem zeros
-  arrange(AIC) %>% # Ordena pela coluna <-Escolha da Coluna c("W","A","KS","AIC","BIC","HQIC")
-  as.matrix() # Filtra a matriz
-
-# Measures of Accuracy
-results_final
-
-results_final1 <- data.frame(results_final)
-
-
-write.xlsx(results_final1, "RR_Mothers_Who_Received_Post_Natal_Check_Up_Within_1_Week_Of_Delivery_Total.xlsx", rowNames = TRUE)
+results
