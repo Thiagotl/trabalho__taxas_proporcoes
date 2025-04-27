@@ -1,4 +1,4 @@
-ULindley <- function(mu.link = "logit") {
+UL <- function(mu.link = "logit") {
   mstats <- checklink(
     "mu.link", "ULindley", substitute(mu.link),
     c("logit", "probit", "cloglog", "cauchit", "log", "own")
@@ -6,7 +6,7 @@ ULindley <- function(mu.link = "logit") {
 
   structure(
     list(
-      family = c("ULindley", "Unit-Lindley"),
+      family = c("UL", "Unit-Lindley"),
       parameters = list(mu = TRUE),
       nopar = 1,
       type = "Continuous",

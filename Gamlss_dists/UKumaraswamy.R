@@ -7,7 +7,7 @@ s1 <- D(kww, "sigma")
 ms2 <- D(m1, "sigma")
 
 
-Kuma <- function(mu.link = "logit", sigma.link = "identity") {
+KW <- function(mu.link = "logit", sigma.link = "identity") {
   mstats <- checklink(
     "mu.link", "Kuma", substitute(mu.link),
     c("logit", "probit", "cloglog", "cauchit", "log", "own")
@@ -18,7 +18,7 @@ Kuma <- function(mu.link = "logit", sigma.link = "identity") {
   )
   structure(
     list(
-      family = c("Kuma", "Kumaraswamy"),
+      family = c("KW", "Kumaraswamy"),
       parameters = list(mu = TRUE, sigma = TRUE),
       nopar = 2,
       type = "Continuous",
