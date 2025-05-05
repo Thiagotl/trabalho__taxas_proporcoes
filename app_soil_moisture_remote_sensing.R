@@ -1,6 +1,7 @@
 # Loading packages and functions -----------------------------------------------
 suppressPackageStartupMessages(library(gamlss))
 suppressPackageStartupMessages(library(dplyr))
+library(lubridate)
 
 # Functions for Estimating the Parameters of Distributions
 source("Estimation_gamlss.R")
@@ -20,7 +21,15 @@ y<-data$sm_tgt
 
 temp <- sample(data_soil$clay_content, 3000)
 
-cov <- data |> 
+
+data_set<-data_soil |> 
+  mutate(data = ymd(time),
+         mes = month(data),
+         dia = day(data)) |> 
+  filter(dia == 3, 
+         mes == 2)
+
+cov <- data_set |> 
   dplyr::select(4:7) |> 
   as.matrix()
 
@@ -33,7 +42,9 @@ sigma <- c(0.4, -1)
 # Use log link
 log_link <- make.link("log")
 
-fit <- gamlss(y ~ X, sigma.formula = ~ X[,1:2], family = UC(), trace = F, method = CG())
+fit <- gamlss(y ~ cov, sigma.formula = ~ cov, family = UC(), trace = F, method = RS())
+
+summary(fit)
 
 # BETA Original (log | logit)
 estimation_beta <- fitted_dist(y = data$sm_tgt, family = "BEo")
@@ -61,7 +72,7 @@ fit3 <- extract_fit(estimation_simplex)
 # Unit Gamma (logit | log)
 estimation_ugamma <- fitted_dist(y = data$sm_tgt, family = "UG", X = cov)
 fit4 <- extract_fit(estimation_ugamma)
-
+summary(estimation_ugamma)
 # Unit Lindley (logit)
 estimation_ulindley <- fitted_dist(y = data$sm_tgt, family = "UL")
 fit5 <- extract_fit(estimation_ulindley)
