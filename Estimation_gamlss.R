@@ -4,7 +4,7 @@ source("Gamlss_dists//UGamma.R")
 source("Gamlss_dists//Ugompertz.R")
 source("Gamlss_dists//UKumaraswamy.R")
 source("Gamlss_dists//ULindley.R")
-source("Gamlss_dists//UTriangular.R")
+source("Gamlss_dists//Utriangular.R")
 source("Gamlss_dists//UWeibull.R")
 
 fitted_dist <- function(y, family, X = NULL) {

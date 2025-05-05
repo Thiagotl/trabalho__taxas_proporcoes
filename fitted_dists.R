@@ -32,12 +32,12 @@ log_link <- make.link("log")
 
 # Calculate mu and sigma using matrix multiplication
 mu_true <- log_link$linkinv(X %*% mu)
-sigma_true <- log_link$linkinv(X[, 1:2] %*% sigma)
+sigma_true <- log_link$linkinv(X[,1:2] %*% sigma)
 
 # Simulate response from a UC distribution (or any other)
 y <- ruchen(n, mu_true, sigma_true)
 
-fit <- gamlss(y ~ X, sigma.formula = ~ X[, 1:2], family = UC(), trace = F, method = CG())
+fit <- gamlss(y ~ X, sigma.formula = ~ X[,1:2], family = UC(), trace = F, method = CG())
 estimation_uchen <- fitted_dist(y = y, family = "UC", X = X)
 
 # Fitting the Data -------------------------------------------------------------

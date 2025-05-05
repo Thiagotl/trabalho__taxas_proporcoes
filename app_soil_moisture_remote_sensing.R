@@ -4,6 +4,7 @@ suppressPackageStartupMessages(library(dplyr))
 
 # Functions for Estimating the Parameters of Distributions
 source("Estimation_gamlss.R")
+source("resid_analisys.R")
 
 # Function to extract fit quality metrics
 extract_fit <- function(estimation) {
@@ -15,8 +16,13 @@ library(readr)
 
 data_soil <- read_csv("data_sets/updated_data.csv")
 View(data_soil)
-data<-data_soil
+y<-data$sm_tgt
 
+temp <- sample(data_soil$clay_content, 3000)
+
+cov <- data |> 
+  dplyr::select(4:7) |> 
+  as.matrix()
 
 # --------------
 
@@ -27,20 +33,33 @@ sigma <- c(0.4, -1)
 # Use log link
 log_link <- make.link("log")
 
+fit <- gamlss(y ~ X, sigma.formula = ~ X[,1:2], family = UC(), trace = F, method = CG())
+
 # BETA Original (log | logit)
 estimation_beta <- fitted_dist(y = data$sm_tgt, family = "BEo")
 fit1 <- extract_fit(estimation_beta)
 
 # Beta reparametrizada na média (logit | logit)
-estimation_betamean <- fitted_dist(y = data$sm_tgt, family = "BE")
+estimation_betamean <- fitted_dist(y = y, family = "BE", X = cov)
 fit2 <- extract_fit(estimation_betamean)
 
+#Comandos----
+resid.analisys(resid=estimation_betamean$residuals,plot.type=c("plot"))
+resid.analisys(resid=estimation_betamean$residuals,plot.type=c("FAC"),lag.max=30)
+resid.analisys(resid=estimation_betamean$residuals,plot.type=c("FACP"),lag.max=30)
+resid.analisys(resid=estimation_betamean$residuals,plot.type=c("densidade"))
+resid.analisys(resid=estimation_betamean$residuals,plot.type=c("envelope"))
+resid.analisys(resid=estimation_betamean$residuals,plot.type=c("residuo"))
+fitted <- y - estimation_betamean$residuals
+resid.analisys(resid=estimation_betamean$residuals,fitted,plot.type=c("resxfit"))
+resid.analisys(data=y,fitted,plot.type=c("realxfit"))
+
 # Simplex (logit | log)
-estimation_simplex <- fitted_dist(y = data$sm_tgt, family = "SIMPLEX")
+estimation_simplex <- fitted_dist(y = y, family = "SIMPLEX", X = cov)
 fit3 <- extract_fit(estimation_simplex)
 
 # Unit Gamma (logit | log)
-estimation_ugamma <- fitted_dist(y = data$sm_tgt, family = "UG")
+estimation_ugamma <- fitted_dist(y = data$sm_tgt, family = "UG", X = cov)
 fit4 <- extract_fit(estimation_ugamma)
 
 # Unit Lindley (logit)
@@ -52,7 +71,7 @@ estimation_uweibull <- fitted_dist(y = data$sm_tgt, family = "UW")
 fit6 <- extract_fit(estimation_uweibull)
 
 # Kumaraswamy (logit | log)
-estimation_kumaraswamy <- fitted_dist(y = data$sm_tgt, family = "KW")
+estimation_kumaraswamy <- fitted_dist(y = data$sm_tgt, family = "KW", X = cov)
 fit7 <- extract_fit(estimation_kumaraswamy)
 
 # Unit Chen (logit | log)
