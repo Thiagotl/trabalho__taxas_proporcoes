@@ -109,7 +109,7 @@ summary(estimation_betamean)
 wp(estimation_betamean)
 
 # SIMPLEX (mean / scale)
-estimation_SIMPLEX <- gamlss(rvar2 ~ cov_mu, sigma.formula = ~ cov_sigma, family = SIMPLEX(), trace = F, method = RS())
+estimation_SIMPLEX <- gamlss(rvar ~ cov_mu, sigma.formula = ~ cov_sigma, family = SIMPLEX(), trace = F, method = RS())
 fit2 <- extract_fit(estimation_SIMPLEX)
 
 # residual analisys
@@ -119,7 +119,7 @@ summary(estimation_SIMPLEX)
 wp(estimation_SIMPLEX)
 
 # Unit Gamma (mean / precision)
-estimation_UG <- gamlss(rvar2 ~ cov_mu, sigma.formula = ~ cov_sigma, family = UG(), trace = F, method = RS())
+estimation_UG <- gamlss(rvar ~ cov_mu, sigma.formula = ~ cov_sigma, family = UG(), trace = F, method = RS())
 fit3 <- extract_fit(estimation_UG)
 
 # residual analisys
@@ -152,7 +152,7 @@ summary(estimation_KW)
 wp(estimation_KW)
 
 # Unit Quantile Chen (Quantile / Shape)
-estimation_UQC <- gamlss(rvar2 ~ cov_mu2, sigma.formula = ~ 1, family = UQC(), trace = F, method = RS())
+estimation_UQC <- gamlss(rvar ~ cov_mu, sigma.formula = ~ 1, family = UQC(), trace = F, method = RS())
 fit6 <- extract_fit(estimation_UQC)
 
 # residual analisys
