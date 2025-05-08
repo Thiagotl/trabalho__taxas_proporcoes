@@ -80,7 +80,7 @@ fit6 <- extract_fit(estimation_uweibull)
 estimation_kumaraswamy <- fitted_dist(y = data, family = "KW")
 fit7 <- extract_fit(estimation_kumaraswamy)
 
-# Unit Chen (logit | log)
+# Unit Chen (log | log)
 estimation_uchen <- fitted_dist(y = data, family = "UC")
 fit8 <- extract_fit(estimation_uchen)
 

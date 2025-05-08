@@ -1,5 +1,6 @@
 # Loading gamlss distribution functions
 source("Gamlss_dists//Uchen.R")
+source("Gamlss_dists//UQchen.R")
 source("Gamlss_dists//UGamma.R")
 source("Gamlss_dists//Ugompertz.R")
 source("Gamlss_dists//UKumaraswamy.R")
@@ -15,6 +16,7 @@ fitted_dist <- function(y, family, X = NULL) {
     UW = list(fun = UW, args = list(mu.link = "logit", sigma.link = "log")),
     KW = list(fun = KW, args = list(mu.link = "logit", sigma.link = "log")),
     UC = list(fun = UC, args = list(mu.link = "log", sigma.link = "log")),
+    UQC = list(fun = UQC, args = list(mu.link = "logit", sigma.link = "log")),
     TRI = list(fun = TRI, args = list(mu.link = "logit")),
     UGo = list(fun = UGo, args = list(mu.link = "logit", sigma.link = "log")),
     BEo = list(fun = BEo, args = list(mu.link = "log", sigma.link = "logit")),

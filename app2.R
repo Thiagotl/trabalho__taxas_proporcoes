@@ -16,11 +16,6 @@ extract_fit <- function(estimation) {
 
 # Importing Data ---------------------------------------------------------------
 
-library(readr)
-Sleep_Efficiency <- read_csv("data_sets/Sleep_Efficiency.csv")
-View(Sleep_Efficiency)
-
-
 dados <- readr::read_csv("data_sets/Sleep_Efficiency.csv") |> 
   dplyr::filter(!is.na(Awakenings)
                 & !is.na(`Alcohol consumption`)) |> 
@@ -58,89 +53,104 @@ dados <- readr::read_csv("data_sets/Sleep_Efficiency.csv") |>
 # Variável Resposta
 rvar <- dados$`Sleep efficiency`
 y <- dados$`Sleep efficiency`
+
 # Matrizes de covariáveis
 cov_mu <- dados |> 
   dplyr::select(
-    -c(1,2,3,4,9,12)
+    -c(2,3,4,9,10,12)
   ) |> 
   as.matrix()
 
 cov_sigma <- dados |> 
   dplyr::select(
-    -c(2,3,4,9,10,11,12)
+    -c(1,2,3,4,5,6,7,9,10,11,12)
   ) |> 
   as.matrix()
-
-cov <- dados |> 
+ 
+cov <- dados |>
   dplyr::select(
-    -c(2,3,4)
-  ) |> 
-  as.matrix()
+    -c(2,3,4,5,9,12)
+  ) |>
+  as.matrix() 
 
-# Unit Chen (logit | log)
-# estimation_uchen <- fitted_dist(y = rvar, family = "UC", X = cov)
-# fit8 <- extract_fit(estimation_uchen)
+# beta
+# estimation_betamean <- fitted_dist(y = rvar, family = "BE", X = cov)
+# fit2 <- extract_fit(estimation_betamean)
 
-estimation_uchen <- gamlss(rvar ~ cov, sigma.formula = ~ 1, family = UC(), trace = F, method = RS())
+# beta
+estimation_betamean <- gamlss(rvar ~ cov_mu, sigma.formula = ~ cov_sigma, family = BE(), trace = F, method = RS())
 
-plot(estimation_uchen)
+plot(estimation_betamean)
+shapiro.test(estimation_betamean$residuals)
+summary(estimation_betamean)
+wp(estimation_betamean)
 
-shapiro.test(estimation_uchen$residuals)
-summary(estimation_uchen)
+# UQC
+rvar <- dados$`Sleep efficiency`
+cov <- dados |>
+  dplyr::select(
+    -c(2,3,4,5,6,9,12)
+  ) |>
+  as.matrix() 
+which(abs(estimation_UQC$residuals) > 3)
 
-wp(estimation_uchen, )
-
-source("influence.R")
-
-library(gamlss)
-dados2<-as.matrix(dados)
-
-summary.gamlss(estimation_uchen)
-residuals(estimation_uchen)
-prodist(estimation_uchen)
-
-residuals<-resid(estimation_uchen)
-
-X <- model.matrix(estimation_uchen, what = "mu")
-W <- estimation_uchen$weights
+cov2 <- cov[-c(51,107),]  
+rvar2 <- rvar[-c(51,107)]
 
 
-cook_distance <- (residuals^2 * leverage) / (length(coef(model)) * (1 - leverage))
-W_sqrt <- sqrt(W)                     # W^{1/2}
-X_weighted <- W_sqrt * X              # W^{1/2} X
+estimation_UQC <- gamlss(rvar2 ~ cov2, sigma.formula = ~ 1, family = UQC(), trace = F, method = RS())
 
-cor(X[, -1])
+plot(estimation_UQC)
+shapiro.test(estimation_UQC$residuals)
+summary(estimation_UQC)
+wp(estimation_UQC)
 
-library(MASS)
-H <- X_weighted %*% ginv(t(X) %*% (W * X)) %*% t(X_weighted)
-lambda <- 1e-6
-XTWX <- t(X) %*% (W * X)
-XTWX_reg <- XTWX + lambda * diag(ncol(X))
-H <- X_weighted %*% solve(XTWX_reg) %*% t(X_weighted)
-leverage <- diag(H)
+# SIMPLEX
 
-plot(leverage, main = "Leverage: Pseudoinversa vs Regularização")
-abline(h = 2 * mean(leverage), col = "red", lty = 2) 
+estimation_SIMPLEX <- gamlss(rvar ~ cov_mu, sigma.formula = ~ cov_sigma, family = SIMPLEX(), trace = F, method = RS())
 
-h = 2 * mean(leverage)
-which(leverage>h)
+plot(estimation_SIMPLEX)
+shapiro.test(estimation_SIMPLEX$residuals)
+summary(estimation_SIMPLEX)
+wp(estimation_SIMPLEX)
+
+# KW
+
+estimation_KW <- gamlss(rvar ~ cov_mu, sigma.formula = ~ 1, family = KW(), trace = F, method = RS())
+
+plot(estimation_KW)
+shapiro.test(estimation_KW$residuals)
+summary(estimation_KW)
+wp(estimation_KW)
+
+# UG
+rvar <- dados$`Sleep efficiency`
+cov <- dados |>
+  dplyr::select(
+    -c(2,3,4,5,9,12)
+  ) |>
+  as.matrix() 
+
+cov2 <- cov[-51,]  
+rvar2 <- rvar[-51]
+
+estimation_UG <- gamlss(rvar2 ~ cov2, sigma.formula = ~ 1, family = UG(), trace = F, method = RS())
+
+plot(estimation_UG)
+shapiro.test(estimation_UG$residuals)
+summary(estimation_UG)
+wp(estimation_UG)
 
 
-cook_distance <- (residuos^2 * leverage) / (length(coef(model)) * (1 - leverage)^2)
-
-#fit <- gamlss(rvar ~ cov, sigma.formula = ~ cov, family = UC(), trace = F, method = CG())
-
-
-# summary(fit)
+# Modelos ----------------------------------------------------------------------
 
 # BETA Original (log | logit)
-estimation_beta <- fitted_dist(y = rvar, family = "BEo", X = cov)
-fit1 <- extract_fit(estimation_beta)
+# estimation_beta <- fitted_dist(y = rvar, family = "BEo", X = cov)
+# fit1 <- extract_fit(estimation_beta)
 
 # Beta reparametrizada na média (logit | logit)
 estimation_betamean <- fitted_dist(y = rvar, family = "BE", X = cov)
 fit2 <- extract_fit(estimation_betamean)
-plot(estimation_betamean)
 
 # Simplex (logit | log)
 estimation_simplex <- fitted_dist(y = rvar, family = "SIMPLEX", X = cov)
@@ -161,10 +171,11 @@ fit6 <- extract_fit(estimation_uweibull)
 estimation_kumaraswamy <- fitted_dist(y = rvar, family = "KW", X = cov)
 fit7 <- extract_fit(estimation_kumaraswamy)
 
+# Unit Chen (log | log)
+estimation_uchen <- fitted_dist(y = rvar, family = "UC", X = cov)
+fit8 <- extract_fit(estimation_uchen)
 
-
-
-# # Unit Triangular (logit)
+# Unit Triangular (logit)
 estimation_utriangular <- fitted_dist(y = rvar, family = "TRI", X = cov)
 fit9 <- extract_fit(estimation_utriangular)
 
@@ -172,15 +183,17 @@ fit9 <- extract_fit(estimation_utriangular)
 estimation_ugompertz <- fitted_dist(y = rvar, family = "UGo", X = cov)
 fit10 <- extract_fit(estimation_ugompertz)
 
-plot(estimation_ugompertz)
+# Unit Quantile Chen (logit | log)
+estimation_uqchen <- fitted_dist(y = rvar, family = "UQC", X = cov)
+fit11 <- extract_fit(estimation_uqchen)
 
 # Comparing Fits ---------------------------------------------------------------
 
 names <- c(
   "Beta", "Beta_m", "Simplex", "UGamma", "ULindley", "UWeibull", "Kumaraswamy",
-  "UChen", "Triangular", "UGompertz"
+  "UChen", "Triangular", "UGompertz", "UQChen"
 )
-results <- matrix(NA, ncol = 3, nrow = 10)
+results <- matrix(NA, ncol = 3, nrow = 11)
 colnames(results) <- c("GD", "AIC", "SBC")
 rownames(results) <- names
 
@@ -194,14 +207,6 @@ results[7, ] <- fit7
 results[8, ] <- fit8
 results[9, ] <- fit9
 results[10, ] <- fit10
+results[11, ] <- fit11
 
 results
-
-# ----------------
-
-
-
-
-
-
-

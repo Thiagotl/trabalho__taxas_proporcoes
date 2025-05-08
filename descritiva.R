@@ -89,3 +89,4 @@ labs(title = "Gráfico de barras da frequência de atividade física", x = "Quan
 theme_minimal()
 # Em média as pessoas acordaram se exercitam duas vezes por semana, tendo uma variação grande entre
 # os estudados, nesse caso um hábito saudável, mas assim como os vícios é difícil de balancear.
+
