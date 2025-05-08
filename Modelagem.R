@@ -152,7 +152,7 @@ summary(estimation_KW)
 wp(estimation_KW)
 
 # Unit Quantile Chen (Quantile / Shape)
-estimation_UQC <- gamlss(rvar ~ cov_mu, sigma.formula = ~ 1, family = UQC(), trace = F, method = RS())
+estimation_UQC <- gamlss(rvar ~ cov_mu, sigma.formula = ~ cov_sigma, family = UQC(), trace = F, method = RS())
 fit6 <- extract_fit(estimation_UQC)
 
 # residual analisys
