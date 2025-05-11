@@ -3,15 +3,15 @@ suppressPackageStartupMessages(library(gamlss))
 suppressPackageStartupMessages(library(dplyr))
 library(lubridate)
 
-# Functions for Estimation of Distributions
+# Function for Estimation of Distributions
 source("Estimation_gamlss.R")
+# Function to plot residual analisys
 source("resid_analisys.R")
 
 # Function to extract fit quality metrics
 extract_fit <- function(estimation) {
-  c(estimation$P.deviance, estimation$aic, estimation$sbc)
+  c(estimation$P.deviance, estimation$aic, estimation$sbc, Rsq(estimation, type = "Cox Snell"))
 }
-
 # Importing Data ---------------------------------------------------------------
 
 # Filtering dataset
@@ -68,7 +68,7 @@ cov_mu <- dados |>
     -4,
     # Removing useless covariables
     # -c(1,2,3,9,10,12)
-    -c(2,3,9,12)
+    -c(2, 3, 9, 12)
   ) |>
   filter(row_number() != 51) |>
   as.matrix()
@@ -79,7 +79,7 @@ cov_sigma <- dados |>
     # Removing response variable
     -4,
     # Removing useless covariables
-    -c(1,2,3,4,5,6,7,9,10,11,12)
+    -c(1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12)
   ) |>
   filter(row_number() != 51) |>
   as.matrix()
@@ -99,7 +99,7 @@ cov <- dados |>
 # Fitting Best Model -----------------------------------------------------------
 
 # Beta mean (mean / scale)
-estimation_betamean <- gamlss(rvar ~ cov_mu, sigma.formula = ~ cov_sigma, family = BE(), trace = F, method = RS())
+estimation_betamean <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = BE(), trace = F, method = RS())
 fit1 <- extract_fit(estimation_betamean)
 
 # residual analisys
@@ -109,7 +109,7 @@ summary(estimation_betamean)
 wp(estimation_betamean)
 
 # SIMPLEX (mean / scale)
-estimation_SIMPLEX <- gamlss(rvar ~ cov_mu, sigma.formula = ~ cov_sigma, family = SIMPLEX(), trace = F, method = RS())
+estimation_SIMPLEX <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = SIMPLEX(), trace = F, method = RS())
 fit2 <- extract_fit(estimation_SIMPLEX)
 
 # residual analisys
@@ -119,7 +119,7 @@ summary(estimation_SIMPLEX)
 wp(estimation_SIMPLEX)
 
 # Unit Gamma (mean / precision)
-estimation_UG <- gamlss(rvar ~ cov_mu, sigma.formula = ~ cov_sigma, family = UG(), trace = F, method = RS())
+estimation_UG <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = UG(), trace = F, method = RS())
 fit3 <- extract_fit(estimation_UG)
 
 # residual analisys
@@ -131,7 +131,7 @@ wp(estimation_UG)
 
 
 # Unit Weibull (Quantile / shape)
-estimation_UW <- gamlss(rvar ~ cov_mu, sigma.formula = ~ cov_sigma, family = UW(), trace = F, method = RS())
+estimation_UW <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = UW(), trace = F, method = RS())
 fit4 <- extract_fit(estimation_UW)
 
 # residual analisys
@@ -142,7 +142,7 @@ wp(estimation_UW)
 
 
 # Kumaraswamy (median / dispersion)
-estimation_KW <- gamlss(rvar ~ cov_mu, sigma.formula = ~ cov_sigma, family = KW(), trace = F, method = RS())
+estimation_KW <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = KW(), trace = F, method = RS())
 fit5 <- extract_fit(estimation_KW)
 
 # residual analisys
@@ -152,7 +152,7 @@ summary(estimation_KW)
 wp(estimation_KW)
 
 # Unit Quantile Chen (Quantile / Shape)
-estimation_UQC <- gamlss(rvar ~ cov_mu, sigma.formula = ~ cov_sigma, family = UQC(), trace = F, method = RS())
+estimation_UQC <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = UQC(), trace = F, method = RS())
 fit6 <- extract_fit(estimation_UQC)
 
 # residual analisys
@@ -226,10 +226,10 @@ fit11 <- extract_fit(estimation_uqchen)
 
 names <- c(
   "Beta", "Beta_m", "Simplex", "UGamma", "ULindley", "UWeibull", "Kumaraswamy",
-  "UChen", "Triangular", "UGompertz", "UQChen"
+  "UChen", "Triangular", "UGomportez", "UQChen"
 )
-results <- matrix(NA, ncol = 3, nrow = 11)
-colnames(results) <- c("GD", "AIC", "SBC")
+results <- matrix(NA, ncol = 4, nrow = 11)
+colnames(results) <- c("GD", "AIC", "SBC", "Pseudo-R^2")
 rownames(results) <- names
 
 results[1, ] <- fit1

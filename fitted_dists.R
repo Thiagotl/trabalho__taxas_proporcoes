@@ -7,8 +7,9 @@ source("Estimation_gamlss.R")
 
 # Function to extract fit quality metrics
 extract_fit <- function(estimation) {
-  c(estimation$P.deviance, estimation$aic, estimation$sbc)
+  c(estimation$P.deviance, estimation$aic, estimation$sbc, Rsq(estimation, type = "Cox Snell"))
 }
+
 
 # Importing Data ---------------------------------------------------------------
 
@@ -32,12 +33,12 @@ log_link <- make.link("log")
 
 # Calculate mu and sigma using matrix multiplication
 mu_true <- log_link$linkinv(X %*% mu)
-sigma_true <- log_link$linkinv(X[,1:2] %*% sigma)
+sigma_true <- log_link$linkinv(X[, 1:2] %*% sigma)
 
 # Simulate response from a UC distribution (or any other)
 y <- ruchen(n, mu_true, sigma_true)
 
-fit <- gamlss(y ~ X, sigma.formula = ~ X[,1:2], family = UC(), trace = F, method = CG())
+fit <- gamlss(y ~ X, sigma.formula = ~ X[, 1:2], family = UC(), trace = F, method = CG())
 estimation_uchen <- fitted_dist(y = y, family = "UC", X = X)
 
 # Fitting the Data -------------------------------------------------------------
@@ -92,6 +93,10 @@ fit9 <- extract_fit(estimation_utriangular)
 estimation_ugompertz <- fitted_dist(y = data, family = "UGo")
 fit10 <- extract_fit(estimation_ugompertz)
 
+# Unit Quantile Chen (logit | log)
+estimation_uqchen <- fitted_dist(y = data, family = "UQC")
+fit11 <- extract_fit(estimation_uqchen)
+
 
 # Comparing Fits ---------------------------------------------------------------
 
@@ -99,8 +104,8 @@ names <- c(
   "Beta", "Beta_m", "Simplex", "UGamma", "ULindley", "UWeibull", "Kumaraswamy",
   "UChen", "Triangular", "UGomportez"
 )
-results <- matrix(NA, ncol = 3, nrow = 10)
-colnames(results) <- c("GD", "AIC", "SBC")
+results <- matrix(NA, ncol = 4, nrow = 11)
+colnames(results) <- c("GD", "AIC", "SBC", "Pseudo-R^2")
 rownames(results) <- names
 
 results[1, ] <- fit1
@@ -113,5 +118,6 @@ results[7, ] <- fit7
 results[8, ] <- fit8
 results[9, ] <- fit9
 results[10, ] <- fit10
+results[11, ] <- fit11
 
 results
