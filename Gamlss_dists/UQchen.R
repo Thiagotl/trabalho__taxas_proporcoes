@@ -63,9 +63,9 @@ UQC <- function(mu.link = "logit", sigma.link = "log") {
         d2ldmdd <- ifelse(is.na(d2ldmdd) == TRUE, 0, d2ldmdd)
         d2ldmdd
       },
-      G.dev.incr = function(y, mu, sigma, w, ...) -2 * log(dUQChen(y = y, mu = mu, sigma = sigma)),
+      G.dev.incr = function(y, mu, sigma, w, ...) -2 * log(dUQC(y = y, mu = mu, sigma = sigma)),
       rqres = expression(
-        rqres(pfun = "pUQChen", type = "Continuous", y = y, mu = mu, sigma = sigma)
+        rqres(pfun = "pUQC", type = "Continuous", y = y, mu = mu, sigma = sigma)
       ),
       mu.initial = expression(mu <- rep(mean(y), length(y))),
       sigma.initial = expression(sigma <- rep(mean(y), length(y))),
@@ -79,7 +79,7 @@ UQC <- function(mu.link = "logit", sigma.link = "log") {
 
 # Cumulative distribution function --------------------------------------------#
 
-pUQChen <- function(q, mu, sigma, tau = 0.5) {
+pUQC <- function(q, mu, sigma, tau = 0.5) {
   f <- exp(log(tau) / (1 - exp((-log(mu))^sigma)) * (1 - exp((-log(q))**sigma)))
   
   return(f)
@@ -87,7 +87,7 @@ pUQChen <- function(q, mu, sigma, tau = 0.5) {
 
 # Probability density function ------------------------------------------------#
 
-dUQChen <- function(y, mu, sigma, tau = 0.5, log = FALSE) {
+dUQC <- function(y, mu, sigma, tau = 0.5, log = FALSE) {
   f <- log(tau) * sigma / ((1 - exp((-log(mu))^sigma)) * y) * (-log(y))^(sigma - 1) *
     exp((-log(y))^sigma) * exp(log(tau) / (1 - exp((-log(mu))^sigma)) * (1 - exp((-log(y))^sigma)))
   if (log == TRUE) {
@@ -98,7 +98,7 @@ dUQChen <- function(y, mu, sigma, tau = 0.5, log = FALSE) {
 
 # Quantile Function -----------------------------------------------------------#
 
-qUQChen <- function(u, mu, sigma, tau = 0.5) {
+qUQC <- function(u, mu, sigma, tau = 0.5) {
   q <- exp(-(log(1 - log(u) / log(tau) * (1 - exp((-log(mu))^sigma))))^(1 / sigma))
   
   return(q)
@@ -106,7 +106,7 @@ qUQChen <- function(u, mu, sigma, tau = 0.5) {
 
 # Random number generator function --------------------------------------------#
 
-rUQChen <- function(n, mu, sigma, tau = 0.5) {
+rUQC <- function(n, mu, sigma, tau = 0.5) {
   u <- runif(n)
   y <- exp(-(log(1 - log(u) / log(tau) * (1 - exp((-log(mu))^sigma))))^(1 / sigma))
   

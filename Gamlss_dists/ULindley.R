@@ -24,9 +24,9 @@ UL <- function(mu.link = "logit") {
         d2ldm2 <- ifelse(d2ldm2 < -1e-15, d2ldm2, -1e-15)
         d2ldm2
       },
-      G.dev.incr = function(y, mu, w, ...) -2 * log(dULindley(y = y, mu = mu)),
+      G.dev.incr = function(y, mu, w, ...) -2 * log(dUL(y = y, mu = mu)),
       rqres = expression(
-        rqres(pfun = "pULindley", type = "Continuous", y = y, mu = mu)
+        rqres(pfun = "pUL", type = "Continuous", y = y, mu = mu)
       ),
       mu.initial = expression(mu <- rep(mean(y), length(y))),
       mu.valid = function(mu) all(mu > 0 & mu < 1),
@@ -37,7 +37,7 @@ UL <- function(mu.link = "logit") {
 }
 
 # density function
-dULindley <- function(y, mu, log = FALSE) {
+dUL <- function(y, mu, log = FALSE) {
   if (any(mu <= 0) | any(mu >= 1)) stop(paste("mu must be between 0 and 1", "\n", ""))
   if (any(y <= 0) | any(y >= 1)) stop(paste("x must be between 0 and 1", "\n", ""))
   fy1 <- ((1 - mu)^2 / (mu * (1 - y)^3)) * exp((-y * (1 - mu)) / (mu * (1 - y)))
@@ -46,7 +46,7 @@ dULindley <- function(y, mu, log = FALSE) {
 }
 
 # cumulative distribution function
-pULindley <- function(q, mu, lower.tail = TRUE, log.p = FALSE) {
+pUL <- function(q, mu, lower.tail = TRUE, log.p = FALSE) {
   if (any(mu <= 0) | any(mu >= 1)) stop(paste("mu must be between 0 and 1", "\n", ""))
   if (any(q <= 0) | any(q >= 1)) stop(paste("x must be between 0 and 1", "\n", ""))
   cdf1 <- 1 - (1 - (1 - mu) * q / (q - 1)) * exp(-(1 - mu) * q / (mu * (1 - q)))
@@ -56,7 +56,7 @@ pULindley <- function(q, mu, lower.tail = TRUE, log.p = FALSE) {
 }
 
 # quantile function
-qULindley <- function(u, mu) {
+qUL <- function(u, mu) {
   rep <- 1 / mu
   q <- (rep + lambertWm1((rep) * (u - 1) * exp(-(rep)))) /
     (1 + lambertWm1((rep) * (u - 1) * exp(-(rep))))
@@ -64,8 +64,8 @@ qULindley <- function(u, mu) {
 }
 
 # inversion method for random generation
-rULindley <- function(n, mu) {
+rUL <- function(n, mu) {
   u <- runif(n)
-  y <- qULindley(u = u, mu = mu)
+  y <- qUL(u = u, mu = mu)
   y
 }

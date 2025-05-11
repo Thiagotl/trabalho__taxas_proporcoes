@@ -58,9 +58,9 @@ UC <- function(mu.link = "log", sigma.link = "log") {
         d2ldmdd <- ifelse(is.na(d2ldmdd) == TRUE, 0, d2ldmdd)
         d2ldmdd
       },
-      G.dev.incr = function(y, mu, sigma, w, ...) -2 * log(duchen(y = y, mu = mu, sigma = sigma)),
+      G.dev.incr = function(y, mu, sigma, w, ...) -2 * log(dUC(y = y, mu = mu, sigma = sigma)),
       rqres = expression(
-        rqres(pfun = "puchen", type = "Continuous", y = y, mu = mu, sigma = sigma)
+        rqres(pfun = "pUC", type = "Continuous", y = y, mu = mu, sigma = sigma)
       ),
       mu.initial = expression(mu <- rep(mean(y), length(y))),
       sigma.initial = expression(sigma <- rep(mean(y), length(y))),
@@ -74,13 +74,13 @@ UC <- function(mu.link = "log", sigma.link = "log") {
 
 # Cumulative distribution function --------------------------------------------#
 
-puchen <- function(q, mu, sigma) {
+pUC <- function(q, mu, sigma) {
   return(exp(mu * (1 - exp((-log(q))**sigma))))
 }
 
 # Probability density function ------------------------------------------------#
 
-duchen <- function(y, mu, sigma, log = FALSE) {
+dUC <- function(y, mu, sigma, log = FALSE) {
   f <- mu * sigma * exp(mu * (1 - exp((-log(y))**sigma)) + (-log(y))**sigma) *
     (-log(y))**(sigma - 1) / y
 
@@ -94,7 +94,7 @@ duchen <- function(y, mu, sigma, log = FALSE) {
 
 # Quantile Function -----------------------------------------------------------#
 
-quchen <- function(u, mu, sigma) {
+qUC <- function(u, mu, sigma) {
   return(
     exp(-(log(1 - log(u) / mu)**(1 / sigma)))
   )
@@ -102,7 +102,7 @@ quchen <- function(u, mu, sigma) {
 
 # Random number generator function --------------------------------------------#
 
-ruchen <- function(n, mu, sigma) {
+rUC <- function(n, mu, sigma) {
   u <- runif(n)
   return(
     exp(-(log(1 - log(u) / mu)**(1 / sigma)))
