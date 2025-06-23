@@ -1,12 +1,12 @@
 # Loading packages and functions -----------------------------------------------
-suppressPackageStartupMessages(library(gamlss))
-suppressPackageStartupMessages(library(dplyr))
+library(gamlss)
+library(dplyr)
 library(lubridate)
 
 # Function for Estimation of Distributions
 source("Estimation_gamlss.R")
 # Function to plot residual analisys
-source("resid_analisys.R")
+# source("resid_analisys.R")
 
 # Function to extract fit quality metrics
 extract_fit <- function(estimation) {
@@ -222,13 +222,16 @@ fit10 <- extract_fit(estimation_ugompertz)
 estimation_uqchen <- fitted_dist(y = rvar, family = "UQC", X = cov)
 fit11 <- extract_fit(estimation_uqchen)
 
+# Reflected Unit Burr XII (logit | log)
+estimation_uBXII <- fitted_dist(y = rvar, family = "RUBXII", X = cov)
+
 # Comparing Fits ---------------------------------------------------------------
 
 names <- c(
   "Beta", "Beta_m", "Simplex", "UGamma", "ULindley", "UWeibull", "Kumaraswamy",
-  "UChen", "Triangular", "UGomportez", "UQChen"
+  "UChen", "Triangular", "UGomportez", "UQChen", "UBurrXII"
 )
-results <- matrix(NA, ncol = 4, nrow = 11)
+results <- matrix(NA, ncol = 4, nrow = 12)
 colnames(results) <- c("GD", "AIC", "SBC", "Pseudo-R^2")
 rownames(results) <- names
 
@@ -243,5 +246,6 @@ results[8, ] <- fit8
 results[9, ] <- fit9
 results[10, ] <- fit10
 results[11, ] <- fit11
+results[12, ] <- fit12
 
 results

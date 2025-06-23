@@ -7,6 +7,7 @@ source("Gamlss_dists//UKumaraswamy.R")
 source("Gamlss_dists//ULindley.R")
 source("Gamlss_dists//Utriangular.R")
 source("Gamlss_dists//UWeibull.R")
+source("Gamlss_dists//UBXII.R")
 
 fitted_dist <- function(y, family, X = NULL) {
   # Define list of families and their arguments
@@ -21,7 +22,8 @@ fitted_dist <- function(y, family, X = NULL) {
     UGo = list(fun = UGo, args = list(mu.link = "logit", sigma.link = "log")),
     BEo = list(fun = BEo, args = list(mu.link = "log", sigma.link = "logit")),
     BE = list(fun = BE, args = list(mu.link = "logit", sigma.link = "logit")),
-    SIMPLEX = list(fun = SIMPLEX, args = list(mu.link = "logit", sigma.link = "log"))
+    SIMPLEX = list(fun = SIMPLEX, args = list(mu.link = "logit", sigma.link = "log")),
+    RUBXII = list(fun = RUBXII, args = list(mu.link = "logit", sigma.link = "log"))
   )
 
   if (!family %in% names(families)) stop("Family not recognized.")
