@@ -38,7 +38,8 @@ metrics <- function(true_values, mu_result, sigma_result) {
 { set.seed(15) # fixing seed
   # n <- 100 # sample size
   ns <- c(50, 150, 250, 500) # sample sizes
-  R <- 5000 # Monte Carlo replics
+  RS <- 550 # Monte Carlo replics simulated
+  RR <- 500 # Monte Carlo replics required
   # Creating link functions
   logit_link <- make.link("logit")
   log_link <- make.link("log")
@@ -49,7 +50,7 @@ metrics <- function(true_values, mu_result, sigma_result) {
   g2 <- -1
   true_values <- c(b1, b2, g1, g2)
   # Objects to save the estimation results
-  mu_result <- sigma_result <- matrix(NA, R, 2)
+  mu_temp <- sigma_temp <- matrix(NA, RS, 2)
   fits <- list() # list to save all fits
   }
 
@@ -58,15 +59,29 @@ for (j in 1:length(ns)) {
   X <- runif(ns[j])
   mu_true <- logit_link$linkinv(b1 + b2 * X)
   sigma_true <- log_link$linkinv(g1 + g2 * X)
-  for (i in 1:R) {
+  for (i in 1:RS) {
     y <- rUQC(ns[j], mu_true, sigma_true)
-    fit <- gamlss(y ~ X,
+    fit <- try(gamlss(y ~ X,
       sigma.formula = ~X,
       family = UQC(mu.link = "logit", sigma.link = "log"),
       trace = F, method = RS()
-    )
-    mu_result[i, ] <- fit$mu.coefficients
-    sigma_result[i, ] <- fit$sigma.coefficients
+    ), silent = TRUE)
+    
+    # if fit fails, return NA
+    if (!inherits(fit, "try-error")) {
+      mu_temp[i, ] <- fit$mu.coefficients 
+      sigma_temp[i, ] <- fit$sigma.coefficients
+    } else {
+      mu_temp[i, ] <- rep(NA, 2)
+      sigma_temp[i, ] <- rep(NA, 2)
+    }
   }
+  
+  # Selecting only RR replics
+  mu_result <- na.omit(mu_temp)[1:RR,]
+  sigma_result <- na.omit(sigma_temp)[1:RR,]
+  
   fits[[j]] <- metrics(true_values, mu_result, sigma_result)
 }
+
+fits
