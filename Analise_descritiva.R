@@ -65,8 +65,11 @@ ggplot(dados, aes(x = `Sleep efficiency`)) +
     y = "Frequência",
   )
 
+# função para salvar o plot em pdf
 ggsave("histograma_sono.pdf", width = 6, height = 4, units = "in")
 
+
+# Plot para as variáveis dicotômicas
 df <- dados |>
   dplyr::select(
     `Alcohol consumption`, `Smoking status`
@@ -80,7 +83,6 @@ df <- dados |>
     Fumante = `Smoking status`
   )
 
-# Continua igual ao código anterior, mas com dados padronizados
 df_long <- df %>%
   pivot_longer(cols = everything(), names_to = "variavel", values_to = "resposta") %>%
   group_by(variavel, resposta) %>%
@@ -102,3 +104,6 @@ ggplot(df_long, aes(x = variavel, y = prop, fill = resposta)) +
   labs(
     y = "Proporção",
   )
+
+# função para salvar o plot em pdf
+ggsave("barplot_CA_TAB.pdf", width = 6, height = 4, units = "in")
