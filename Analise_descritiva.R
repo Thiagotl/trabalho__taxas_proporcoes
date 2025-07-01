@@ -2,7 +2,7 @@
 library(ggplot2)
 library(dplyr)
 library(tidyr)
-options(OutDec=",") # opção para salvar plots com "," como separador decimal
+options(OutDec = ",") # opção para salvar plots com "," como separador decimal
 
 # Importing Data ---------------------------------------------------------------
 
@@ -56,9 +56,9 @@ ggplot(dados, aes(x = `Sleep efficiency`)) +
   geom_histogram(color = "black", fill = "white", bins = 10) +
   theme_minimal(base_size = 14) +
   theme(
-    panel.grid = element_blank(),         # Remove grid
+    panel.grid = element_blank(), # Remove grid
     panel.border = element_rect(color = "black", fill = NA, size = 1), # Adiciona borda
-    axis.line = element_blank()           # Remove linhas dos eixos para não sobrepor à borda
+    axis.line = element_blank() # Remove linhas dos eixos para não sobrepor à borda
   ) +
   labs(
     x = "Eficiência do Sono",
@@ -95,6 +95,25 @@ ggplot(df_long, aes(x = variavel, y = prop, fill = resposta)) +
   scale_y_continuous(labels = scales::number_format(decimal.mark = ",")) +
   labs(x = "", y = "Proporção", fill = "Resposta") +
   scale_fill_manual(values = c("salmon", "skyblue")) +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid = element_blank(), # Remove grid
+    panel.border = element_rect(color = "black", fill = NA, size = 1), # Adiciona borda
+    axis.line = element_blank() # Remove linhas dos eixos para não sobrepor à borda
+  ) +
+  labs(
+    y = "Proporção",
+  )
+
+
+ggplot(df_long, aes(x = variavel, y = prop, fill = resposta)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = scales::number_format(accuracy = 0.01, decimal.mark = ",")(prop)),
+    position = position_stack(vjust = 0.5), color = "black", size = 4
+  ) +
+  labs(x = "", y = "Proporção", fill = "Resposta", title) +
+  scale_fill_manual(values = c("salmon", "skyblue")) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01, decimal.mark = ",")) +
   theme_minimal(base_size = 14) +
   theme(
     panel.grid = element_blank(), # Remove grid
