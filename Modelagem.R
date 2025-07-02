@@ -2,11 +2,12 @@
 library(gamlss)
 library(dplyr)
 library(lubridate)
+options(OutDec=",") # opção para salvar plots com "," como separador decimal
 
 # Function for Estimation of Distributions
 source("Estimation_gamlss.R")
 # Function to plot residual analisys
-# source("resid_analisys.R")
+source("resid_analisys.R")
 
 # Function to extract fit quality metrics
 extract_fit <- function(estimation) {
@@ -180,72 +181,74 @@ results
 # Models -----------------------------------------------------------------------
 
 # Beta (log | logit) OBS: fit failing
-estimation_beta <- fitted_dist(y = rvar, family = "BEo", X = cov)
-fit1 <- extract_fit(estimation_beta)
+# estimation_beta <- fitted_dist(y = rvar, family = "BEo", X = cov)
+# fit1 <- extract_fit(estimation_beta)
 
 # Beta mean parameterization (logit | logit)
-estimation_betamean <- fitted_dist(y = rvar, family = "BE", X = cov)
-fit2 <- extract_fit(estimation_betamean)
+# estimation_betamean <- fitted_dist(y = rvar, family = "BE", X = cov)
+# fit2 <- extract_fit(estimation_betamean)
 
 # Simplex (logit | log)
-estimation_simplex <- fitted_dist(y = rvar, family = "SIMPLEX", X = cov)
-fit3 <- extract_fit(estimation_simplex)
+# estimation_simplex <- fitted_dist(y = rvar, family = "SIMPLEX", X = cov)
+# fit3 <- extract_fit(estimation_simplex)
 
 # Unit Gamma (logit | log)
-estimation_ugamma <- fitted_dist(y = rvar, family = "UG", X = cov)
-fit4 <- extract_fit(estimation_ugamma)
+# estimation_ugamma <- fitted_dist(y = rvar, family = "UG", X = cov)
+# fit4 <- extract_fit(estimation_ugamma)
+
 # Unit Lindley (logit)
-estimation_ulindley <- fitted_dist(y = rvar, family = "UL", X = cov)
-fit5 <- extract_fit(estimation_ulindley)
+# estimation_ulindley <- fitted_dist(y = rvar, family = "UL", X = cov)
+# fit5 <- extract_fit(estimation_ulindley)
 
 # Unit Weibull (logit | log)
-estimation_uweibull <- fitted_dist(y = rvar, family = "UW", X = cov)
-fit6 <- extract_fit(estimation_uweibull)
+# estimation_uweibull <- fitted_dist(y = rvar, family = "UW", X = cov)
+# fit6 <- extract_fit(estimation_uweibull)
 
 # Kumaraswamy (logit | log)
-estimation_kumaraswamy <- fitted_dist(y = rvar, family = "KW", X = cov)
-fit7 <- extract_fit(estimation_kumaraswamy)
+# estimation_kumaraswamy <- fitted_dist(y = rvar, family = "KW", X = cov)
+# fit7 <- extract_fit(estimation_kumaraswamy)
 
 # Unit Chen (log | log)
-estimation_uchen <- fitted_dist(y = rvar, family = "UC", X = cov)
-fit8 <- extract_fit(estimation_uchen)
+# estimation_uchen <- fitted_dist(y = rvar, family = "UC", X = cov)
+# fit8 <- extract_fit(estimation_uchen)
 
 # Unit Triangular (logit)
-estimation_utriangular <- fitted_dist(y = rvar, family = "TRI", X = cov)
-fit9 <- extract_fit(estimation_utriangular)
+# estimation_utriangular <- fitted_dist(y = rvar, family = "TRI", X = cov)
+# fit9 <- extract_fit(estimation_utriangular)
 
 # Unit Gompertz (logit | log)
-estimation_ugompertz <- fitted_dist(y = rvar, family = "UGo", X = cov)
-fit10 <- extract_fit(estimation_ugompertz)
+# estimation_ugompertz <- fitted_dist(y = rvar, family = "UGo", X = cov)
+# fit10 <- extract_fit(estimation_ugompertz)
 
 # Unit Quantile Chen (logit | log)
-estimation_uqchen <- fitted_dist(y = rvar, family = "UQC", X = cov)
-fit11 <- extract_fit(estimation_uqchen)
+# estimation_uqchen <- fitted_dist(y = rvar, family = "UQC", X = cov)
+# fit11 <- extract_fit(estimation_uqchen)
 
 # Reflected Unit Burr XII (logit | log)
-estimation_uBXII <- fitted_dist(y = rvar, family = "RUBXII", X = cov)
+# estimation_uBXII <- fitted_dist(y = rvar, family = "RUBXII", X = cov)
+# fit12 <- extract_fit(estimation_uBXII)
 
 # Comparing Fits ---------------------------------------------------------------
 
-names <- c(
-  "Beta", "Beta_m", "Simplex", "UGamma", "ULindley", "UWeibull", "Kumaraswamy",
-  "UChen", "Triangular", "UGomportez", "UQChen", "UBurrXII"
-)
-results <- matrix(NA, ncol = 4, nrow = 12)
-colnames(results) <- c("GD", "AIC", "SBC", "Pseudo-R^2")
-rownames(results) <- names
-
-results[1, ] <- fit1
-results[2, ] <- fit2
-results[3, ] <- fit3
-results[4, ] <- fit4
-results[5, ] <- fit5
-results[6, ] <- fit6
-results[7, ] <- fit7
-results[8, ] <- fit8
-results[9, ] <- fit9
-results[10, ] <- fit10
-results[11, ] <- fit11
-results[12, ] <- fit12
-
-results
+# names <- c(
+#   "Beta", "Beta_m", "Simplex", "UGamma", "ULindley", "UWeibull", "Kumaraswamy",
+#   "UChen", "Triangular", "UGomportez", "UQChen", "UBurrXII"
+# )
+# results <- matrix(NA, ncol = 4, nrow = 12)
+# colnames(results) <- c("GD", "AIC", "SBC", "Pseudo-R^2")
+# rownames(results) <- names
+# 
+# results[1, ] <- fit1
+# results[2, ] <- fit2
+# results[3, ] <- fit3
+# results[4, ] <- fit4
+# results[5, ] <- fit5
+# results[6, ] <- fit6
+# results[7, ] <- fit7
+# results[8, ] <- fit8
+# results[9, ] <- fit9
+# results[10, ] <- fit10
+# results[11, ] <- fit11
+# results[12, ] <- fit12
+# 
+# results

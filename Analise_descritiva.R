@@ -119,9 +119,6 @@ ggplot(df_long, aes(x = variavel, y = prop, fill = resposta)) +
     panel.grid = element_blank(), # Remove grid
     panel.border = element_rect(color = "black", fill = NA, size = 1), # Adiciona borda
     axis.line = element_blank() # Remove linhas dos eixos para não sobrepor à borda
-  ) +
-  labs(
-    y = "Proporção",
   )
 
 # função para salvar o plot em pdf
