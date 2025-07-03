@@ -19,18 +19,28 @@ metrics <- function(true_values, mu_result, sigma_result) {
     apply(mu_result, 2, var),
     apply(sigma_result, 2, var)
   ) + (true_values - mean_values)^2
-  
+  skewness <- c( 
+    moments::skewness(mu_result),
+    moments::skewness(sigma_result)
+  )
+  kurtosis <- c( 
+    moments::kurtosis(mu_result),
+    moments::kurtosis(sigma_result)
+  )
   # creating a results matrix
   result <- cbind(
     true_values,
     round(mean_values,3),
     round(b_values,3),
-    round(eqm_values,3)
+    round(eqm_values,3),
+    round(skewness,3),
+    round(kurtosis,3)
   )
-  colnames(result) <- c("true value", "mean", "relative_bias", "eqm") # metrics
+  colnames(result) <- c("true value", "mean", "relative_bias", "eqm", "SK", "KUR") # metrics
   rownames(result) <- c("b1", "b2", "g1", "g2") # par names
   return(result)
 }
+
 
 # Simulation -------------------------------------------------------------------
 
@@ -38,8 +48,8 @@ metrics <- function(true_values, mu_result, sigma_result) {
 { set.seed(15) # fixing seed
   # n <- 100 # sample size
   ns <- c(50, 150, 250, 500) # sample sizes
-  RS <- 550 # Monte Carlo replics simulated
-  RR <- 500 # Monte Carlo replics required
+  RS <- 55 # Monte Carlo replics simulated
+  RR <- 50 # Monte Carlo replics required
   # Creating link functions
   logit_link <- make.link("logit")
   log_link <- make.link("log")
@@ -85,3 +95,5 @@ for (j in 1:length(ns)) {
 }
 
 fits
+
+
