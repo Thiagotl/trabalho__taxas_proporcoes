@@ -14,19 +14,7 @@ extract_fit <- function(estimation) {
   c(estimation$P.deviance, estimation$aic, estimation$sbc, Rsq(estimation, type = "Cox Snell"))
 }
 
-# Q-Q plot
-# ggplot(data = data.frame(y = dados), aes(sample = y)) +
-#   stat_qq(color = "black") +
-#   stat_qq_line(color = "black") +
-#   labs(title = "",
-#        x = "Quantis Teóricos",
-#        y = "Quantis Amostrados") +
-#   theme_minimal(base_size = 14) +
-#   theme(
-#     panel.grid = element_blank(),
-#     panel.border = element_rect(color = "black", fill = NA, size = 1), # Adiciona borda
-#     axis.line = element_blank()
-#   )
+
 
 
 # function to save plot.pdf
