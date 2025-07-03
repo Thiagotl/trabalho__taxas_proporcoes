@@ -1,6 +1,7 @@
 # Loading packages and functions -----------------------------------------------
 library(gamlss)
 library(dplyr)
+library(ggplot2)
 library(lubridate)
 options(OutDec=",") # opção para salvar plots com "," como separador decimal
 
@@ -90,8 +91,25 @@ summary(mod_betamean)
 
 # residual analisys
 shapiro.test(mod_betamean$residuals)
-plot(mod_simplex)
+# plot(mod_betamean)
 wp(mod_betamean)
+
+# function to save plot.pdf
+ggsave("wormplot_beta.pdf", width = 6, height = 4, units = "in")
+
+# Q-Q plot
+ggplot(data = data.frame(y = dados), aes(sample = y)) +
+  stat_qq(color = "black") +
+  stat_qq_line(color = "black") +
+  labs(title = "",
+       x = "Quantis Teóricos",
+       y = "Quantis Amostrados") +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, size = 1), # Adiciona borda
+    axis.line = element_blank()
+  )
 
 # SIMPLEX (mean / scale)
 estimation_SIMPLEX <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = SIMPLEX(), trace = F, method = RS())
@@ -105,7 +123,11 @@ summary(mod_simplex)
 # residual analisys
 shapiro.test(mod_simplex$residuals)
 plot(mod_simplex)
+
 wp(mod_simplex)
+
+# function to save plot.pdf
+ggsave("wormplot_simplex.pdf", width = 6, height = 4, units = "in")
 
 # Unit Gamma (mean / precision)
 mod_gamma <- gamlss(rvar ~ cov[,-c(2,3,8,11)], sigma.formula = ~ cov[,c(5)], family = UG(), trace = F, method = RS(),
@@ -117,7 +139,11 @@ fit3 <- extract_fit(mod_gamma)
 # residual analisys
 shapiro.test(mod_gamma$residuals)
 plot(mod_gamma)
+
 wp(mod_gamma)
+
+# function to save plot.pdf
+ggsave("wormplot_gamma.pdf", width = 6, height = 4, units = "in")
 
 # Unit Weibull (Quantile / shape)
 mod_UW <- gamlss(rvar ~ cov[,c(1,4,5,7,10)], sigma.formula = ~ cov[,c(4,5,7)], family = UW(), trace = F, method = RS(),
