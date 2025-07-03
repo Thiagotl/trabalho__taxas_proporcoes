@@ -2,17 +2,37 @@
 library(gamlss)
 library(dplyr)
 library(lubridate)
-options(OutDec=",") # opção para salvar plots com "," como separador decimal
+options(OutDec=",") # option to save plots with "," as decimal separator
 
 # Function for Estimation of Distributions
 source("Estimation_gamlss.R")
 # Function to plot residual analisys
-source("resid_analisys.R")
+# source("resid_analisys.R")
 
 # Function to extract fit quality metrics
 extract_fit <- function(estimation) {
   c(estimation$P.deviance, estimation$aic, estimation$sbc, Rsq(estimation, type = "Cox Snell"))
 }
+
+# Q-Q plot
+# ggplot(data = data.frame(y = dados), aes(sample = y)) +
+#   stat_qq(color = "black") +
+#   stat_qq_line(color = "black") +
+#   labs(title = "",
+#        x = "Quantis Teóricos",
+#        y = "Quantis Amostrados") +
+#   theme_minimal(base_size = 14) +
+#   theme(
+#     panel.grid = element_blank(),
+#     panel.border = element_rect(color = "black", fill = NA, size = 1), # Adiciona borda
+#     axis.line = element_blank()
+#   )
+
+
+# function to save plot.pdf
+# ggsave("qqplot_dist.pdf", width = 6, height = 4, units = "in")
+
+
 # Importing Data ---------------------------------------------------------------
 
 # Filtering dataset
@@ -60,38 +80,13 @@ dados <- readr::read_csv("data_sets/Sleep_Efficiency.csv") |>
 rvar <- dados$`Sleep efficiency`[-51]
 y <- dados$`Sleep efficiency`
 
-# Covariable Matrices
-
-# matrix for mu
-cov_mu <- dados |>
-  dplyr::select(
-    # Removing response variable
-    -4,
-    # Removing useless covariables
-    # -c(1,2,3,9,10,12)
-    -c(2, 3, 9, 12)
-  ) |>
-  filter(row_number() != 51) |>
-  as.matrix()
-
-# matrix for sigma
-cov_sigma <- dados |>
-  dplyr::select(
-    # Removing response variable
-    -4,
-    # Removing useless covariables
-    -c(1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12)
-  ) |>
-  filter(row_number() != 51) |>
-  as.matrix()
+# General covariable Matrice
 
 # matrix for both parameters
 cov <- dados |>
   dplyr::select(
     # Removing response variable
     -4,
-    # Removing useless covariables
-    # -c()
   ) |>
   filter(row_number() != 51) |>
   as.matrix()
@@ -120,6 +115,31 @@ summary(estimation_SIMPLEX)
 wp(estimation_SIMPLEX)
 
 # Unit Gamma (mean / precision)
+
+# matrix for mu
+cov_mu <- dados |>
+  dplyr::select(
+    # Removing response variable
+    -4,
+    # Removing useless covariables
+    # -c(1,2,3,9,10,12)
+    -c(2, 3, 9, 12)
+  ) |>
+  filter(row_number() != 51) |>
+  as.matrix()
+
+# matrix for sigma
+cov_sigma <- dados |>
+  dplyr::select(
+    # Removing response variable
+    -4,
+    # Removing useless covariables
+    -c(1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12)
+  ) |>
+  filter(row_number() != 51) |>
+  as.matrix()
+
+
 estimation_UG <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = UG(), trace = F, method = RS())
 fit3 <- extract_fit(estimation_UG)
 
