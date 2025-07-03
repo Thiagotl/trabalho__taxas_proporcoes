@@ -52,28 +52,18 @@ Type gamlssNews() to see new features/changes/bug fixes.
 +     apply(mu_result, 2, var),
 +     apply(sigma_result, 2, var)
 +   ) + (true_values - mean_values)^2
-+   skewness <- c( 
-+     moments::skewness(mu_result),
-+     moments::skewness(sigma_result)
-+   )
-+   kurtosis <- c( 
-+     moments::kurtosis(mu_result),
-+     moments::kurtosis(sigma_result)
-+   )
++   
 +   # creating a results matrix
 +   result <- cbind(
 +     true_values,
 +     round(mean_values,3),
 +     round(b_values,3),
-+     round(eqm_values,3),
-+     round(skewness,3),
-+     round(kurtosis,3)
++     round(eqm_values,3)
 +   )
-+   colnames(result) <- c("true value", "mean", "relative_bias", "eqm", "SK", "KUR") # metrics
++   colnames(result) <- c("true value", "mean", "relative_bias", "eqm") # metrics
 +   rownames(result) <- c("b1", "b2", "g1", "g2") # par names
 +   return(result)
 + }
-> 
 > 
 > # Simulation -------------------------------------------------------------------
 > 
@@ -81,8 +71,8 @@ Type gamlssNews() to see new features/changes/bug fixes.
 > { set.seed(15) # fixing seed
 +   # n <- 100 # sample size
 +   ns <- c(50, 150, 250, 500) # sample sizes
-+   RS <- 5500 # Monte Carlo replics simulated
-+   RR <- 5000 # Monte Carlo replics required
++   RS <- 550 # Monte Carlo replics simulated
++   RR <- 500 # Monte Carlo replics required
 +   # Creating link functions
 +   logit_link <- make.link("logit")
 +   log_link <- make.link("log")
@@ -126,41 +116,37 @@ Type gamlssNews() to see new features/changes/bug fixes.
 +   
 +   fits[[j]] <- metrics(true_values, mu_result, sigma_result)
 + }
-Mensagen de aviso:
-In RS() : Algorithm RS has not yet converged
 > 
 > fits
 [[1]]
-   true value   mean relative_bias   eqm     SK   KUR
-b1        1.6  1.618        -1.112 0.083  0.256 3.031
-b2       -0.7 -0.728        -3.951 0.366 -0.032 3.166
-g1        0.5  0.565       -12.911 0.087  0.150 3.160
-g2       -1.0 -1.022        -2.176 0.224  0.098 3.128
+   true value   mean relative_bias   eqm
+b1        1.6  1.616        -1.006 0.084
+b2       -0.7 -0.715        -2.179 0.362
+g1        0.5  0.568       -13.522 0.082
+g2       -1.0 -1.032        -3.237 0.205
 
 [[2]]
-   true value   mean relative_bias   eqm    SK   KUR
-b1        1.6  1.602        -0.109 0.026 0.095 2.949
-b2       -0.7 -0.708        -1.090 0.119 0.004 3.036
-g1        0.5  0.519        -3.798 0.023 0.031 3.029
-g2       -1.0 -1.001        -0.149 0.065 0.094 3.133
+   true value   mean relative_bias   eqm
+b1        1.6  1.597         0.173 0.017
+b2       -0.7 -0.680         2.789 0.093
+g1        0.5  0.513        -2.699 0.017
+g2       -1.0 -0.997         0.308 0.050
 
 [[3]]
-   true value   mean relative_bias   eqm    SK   KUR
-b1        1.6  1.605        -0.287 0.013 0.125 3.029
-b2       -0.7 -0.710        -1.437 0.065 0.007 2.847
-g1        0.5  0.512        -2.414 0.012 0.037 2.921
-g2       -1.0 -1.002        -0.221 0.035 0.055 2.924
+   true value   mean relative_bias   eqm
+b1        1.6  1.599         0.090 0.013
+b2       -0.7 -0.692         1.089 0.070
+g1        0.5  0.506        -1.242 0.013
+g2       -1.0 -0.991         0.910 0.039
 
 [[4]]
-   true value   mean relative_bias   eqm     SK   KUR
-b1        1.6  1.601        -0.050 0.006  0.096 3.027
-b2       -0.7 -0.700         0.056 0.031 -0.021 2.943
-g1        0.5  0.505        -1.001 0.006  0.073 3.061
-g2       -1.0 -1.001        -0.063 0.018 -0.007 3.042
+   true value   mean relative_bias   eqm
+b1        1.6  1.595         0.295 0.006
+b2       -0.7 -0.691         1.328 0.033
+g1        0.5  0.505        -1.060 0.006
+g2       -1.0 -1.004        -0.408 0.017
 
-> 
-> 
 > 
 > proc.time()
   usuário   sistema decorrido 
-  385.052     1.435   384.576 
+   40.290     1.434    39.782 
