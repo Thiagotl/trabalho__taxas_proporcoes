@@ -196,7 +196,7 @@ wp(mod_UW)
 
 # Kumaraswamy (median / dispersion)
 # Com problemas
-# mod_KW <- gamlss(rvar ~ cov[,-c(2,3,8,11)], sigma.formula = ~ 1, family = KW(), trace = F, method = RS(),
+# mod_KW <- gamlss(rvar ~ cov[,c(1,4,5,7,9,10)], sigma.formula = ~ cov[,5], family = KW(), trace = F, method = RS(),
                  # control = gamlss.control(n.cyc = 200,trace = F))
 # fit5 <- extract_fit(mod_KW)
 
@@ -232,6 +232,19 @@ shapiro.test(mod_UBURR$residuals)
 wp(mod_UBURR)
 
 
+# Unit Lindley (logit)
+mod_Ulind <-  gamlss(rvar ~ cov[,-c(2,3,8,9,11)], family = UL(), trace = F, method = RS(),
+                     control = gamlss.control(n.cyc = 200,trace = F))
+fit8 <- extract_fit(mod_Ulind)
+
+summary(mod_Ulind)
+
+# residual analisys
+plot(mod_Ulind)
+shapiro.test(mod_Ulind$residuals)
+wp(mod_Ulind)
+
+
 # Summary of fits
 names <- c(
   "Beta", "Simplex", "UGamma", "UWeibull", "Kumaraswamy", "UQChen", "UBURRXII"
@@ -247,6 +260,7 @@ results[4, ] <- fit4
 results[5, ] <- fit5
 results[6, ] <- fit6
 results[7, ] <- fit7
+results[8, ] <- fit8
 
 results
 
