@@ -1,8 +1,9 @@
 # Loading packages and functions -----------------------------------------------
 library(gamlss)
 library(dplyr)
+library(ggplot2)
 library(lubridate)
-options(OutDec=",") # option to save plots with "," as decimal separator
+options(OutDec=",") # opção para salvar plots com "," como separador decimal
 
 # Function for Estimation of Distributions
 source("Estimation_gamlss.R")
@@ -13,14 +14,6 @@ source("Estimation_gamlss.R")
 extract_fit <- function(estimation) {
   c(estimation$P.deviance, estimation$aic, estimation$sbc, Rsq(estimation, type = "Cox Snell"))
 }
-
-
-
-
-# function to save plot.pdf
-# ggsave("qqplot_dist.pdf", width = 6, height = 4, units = "in")
-
-
 # Importing Data ---------------------------------------------------------------
 
 # Filtering dataset
@@ -68,113 +61,183 @@ dados <- readr::read_csv("data_sets/Sleep_Efficiency.csv") |>
 rvar <- dados$`Sleep efficiency`[-51]
 y <- dados$`Sleep efficiency`
 
-# General covariable Matrice
+# Covariable Matrices
 
 # matrix for both parameters
 cov <- dados |>
   dplyr::select(
     # Removing response variable
     -4,
+    # Removing useless covariables
+    # -c()
   ) |>
   filter(row_number() != 51) |>
   as.matrix()
+
+colnames(cov)<- c("Age","Gender","Sleep duration","REM",
+                  "Deep", "Light", "Awakenings","Caffeine consumption" , 
+                  "Alcohol consumption","Smoking status","Exercise frequency")
+
 
 
 # Fitting Best Model -----------------------------------------------------------
 
 # Beta mean (mean / scale)
-estimation_betamean <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = BE(), trace = F, method = RS())
-fit1 <- extract_fit(estimation_betamean)
+mod_betamean <- gamlss(rvar ~ cov[,c(1,4,5,7,10)], sigma.formula = ~ cov[,c(7)], family = BE(), trace = F, method = RS(),
+                    control = gamlss.control(n.cyc = 200,trace = F))
+
+fit1 <- extract_fit(mod_betamean)
+summary(mod_betamean)
 
 # residual analisys
-plot(estimation_betamean)
-shapiro.test(estimation_betamean$residuals)
-summary(estimation_betamean)
-wp(estimation_betamean)
+shapiro.test(mod_betamean$residuals)
+# plot(mod_betamean)
+wp(mod_betamean)
+
+# function to save plot.pdf
+ggsave("wormplot_beta.pdf", width = 6, height = 4, units = "in")
+
+# Q-Q plot dos resíduos do modelo
+ggplot(data = data.frame(resid = residuals(mod_betamean)), aes(sample = resid)) +
+  stat_qq(color = "black") +
+  stat_qq_line(color = "black") +
+  labs(title = "s",
+       x = "Quantis Teóricos",
+       y = "Quantis Amostrais") +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    axis.line = element_blank()
+  )
+
+# function to save plot.pdf
+ggsave("qqplot_beta.pdf", width = 6, height = 4, units = "in")
 
 # SIMPLEX (mean / scale)
 estimation_SIMPLEX <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = SIMPLEX(), trace = F, method = RS())
-fit2 <- extract_fit(estimation_SIMPLEX)
+
+mod_simplex <- gamlss(rvar ~ cov[, c(4,5,7,10)], sigma.formula = ~ cov[,c(5,7)], family = SIMPLEX(), trace = F, method = RS(),
+                      control = gamlss.control(n.cyc = 200,trace = F))
+
+fit2 <- extract_fit(mod_simplex)
+summary(mod_simplex)
 
 # residual analisys
-plot(estimation_SIMPLEX)
-shapiro.test(estimation_SIMPLEX$residuals)
-summary(estimation_SIMPLEX)
-wp(estimation_SIMPLEX)
+shapiro.test(mod_simplex$residuals)
+plot(mod_simplex)
+
+wp(mod_simplex)
+
+# function to save plot.pdf
+ggsave("wormplot_simplex.pdf", width = 6, height = 4, units = "in")
+
+# Q-Q plot dos resíduos do modelo
+ggplot(data = data.frame(resid = residuals(mod_simplex)), aes(sample = resid)) +
+  stat_qq(color = "black") +
+  stat_qq_line(color = "black") +
+  labs(title = "s",
+       x = "Quantis Teóricos",
+       y = "Quantis Amostrais") +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    axis.line = element_blank()
+  )
+
+# function to save plot.pdf
+ggsave("qqplot_simplex.pdf", width = 6, height = 4, units = "in")
 
 # Unit Gamma (mean / precision)
+mod_gamma <- gamlss(rvar ~ cov[,-c(2,3,8,11)], sigma.formula = ~ cov[,c(5)], family = UG(), trace = F, method = RS(),
+                    control = gamlss.control(n.cyc = 200,trace = F))
 
-# matrix for mu
-cov_mu <- dados |>
-  dplyr::select(
-    # Removing response variable
-    -4,
-    # Removing useless covariables
-    # -c(1,2,3,9,10,12)
-    -c(2, 3, 9, 12)
-  ) |>
-  filter(row_number() != 51) |>
-  as.matrix()
-
-# matrix for sigma
-cov_sigma <- dados |>
-  dplyr::select(
-    # Removing response variable
-    -4,
-    # Removing useless covariables
-    -c(1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12)
-  ) |>
-  filter(row_number() != 51) |>
-  as.matrix()
-
-
-estimation_UG <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = UG(), trace = F, method = RS())
-fit3 <- extract_fit(estimation_UG)
+summary(mod_gamma)
+fit3 <- extract_fit(mod_gamma)
 
 # residual analisys
-plot(estimation_UG)
-shapiro.test(estimation_UG$residuals)
+shapiro.test(mod_gamma$residuals)
+plot(mod_gamma)
 
-summary(estimation_UG)
-wp(estimation_UG)
+wp(mod_gamma)
 
+# function to save plot.pdf
+ggsave("wormplot_gamma.pdf", width = 6, height = 4, units = "in")
+
+# Q-Q plot dos resíduos do modelo
+ggplot(data = data.frame(resid = residuals(mod_gamma)), aes(sample = resid)) +
+  stat_qq(color = "black") +
+  stat_qq_line(color = "black") +
+  labs(title = "s",
+       x = "Quantis Teóricos",
+       y = "Quantis Amostrais") +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    axis.line = element_blank()
+  )
+
+# function to save plot.pdf
+ggsave("qqplot_gamma.pdf", width = 6, height = 4, units = "in")
 
 # Unit Weibull (Quantile / shape)
-estimation_UW <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = UW(), trace = F, method = RS())
-fit4 <- extract_fit(estimation_UW)
+mod_UW <- gamlss(rvar ~ cov[,c(1,4,5,7,10)], sigma.formula = ~ cov[,c(4,5,7)], family = UW(), trace = F, method = RS(),
+                 control = gamlss.control(n.cyc = 200,trace = F))
+fit4 <- extract_fit(mod_UW)
+
+summary(mod_UW)
 
 # residual analisys
-plot(estimation_UW)
-shapiro.test(estimation_UW$residuals)
-summary(estimation_UW)
-wp(estimation_UW)
-
+plot(mod_UW)
+shapiro.test(mod_UW$residuals)
+wp(mod_UW)
 
 # Kumaraswamy (median / dispersion)
-estimation_KW <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = KW(), trace = F, method = RS())
-fit5 <- extract_fit(estimation_KW)
+# Com problemas
+# mod_KW <- gamlss(rvar ~ cov[,-c(2,3,8,11)], sigma.formula = ~ 1, family = KW(), trace = F, method = RS(),
+                 # control = gamlss.control(n.cyc = 200,trace = F))
+# fit5 <- extract_fit(mod_KW)
+
+# summary(mod_KW)
 
 # residual analisys
-plot(estimation_KW)
-shapiro.test(estimation_KW$residuals)
-summary(estimation_KW)
-wp(estimation_KW)
+# plot(mod_KW)
+# shapiro.test(mod_KW$residuals)
+# wp(mod_KW)
 
 # Unit Quantile Chen (Quantile / Shape)
-estimation_UQC <- gamlss(rvar ~ cov_mu, sigma.formula = ~cov_sigma, family = UQC(), trace = F, method = RS())
-fit6 <- extract_fit(estimation_UQC)
+mod_UQC <-  gamlss(rvar ~ cov[,c(1,4,5,7,10)], sigma.formula = ~ cov[,c(5,7)], family = UQC(), trace = F, method = RS(),
+                   control = gamlss.control(n.cyc = 200,trace = F))
+fit6 <- extract_fit(mod_UQC)
+
+summary(mod_UQC)
 
 # residual analisys
-plot(estimation_UQC)
-shapiro.test(estimation_UQC$residuals)
-summary(estimation_UQC)
-wp(estimation_UQC)
+plot(mod_UQC)
+shapiro.test(mod_UQC$residuals)
+wp(mod_UQC)
 
+# Reflected Unit Burr XII (logit | log)
+mod_UBURR <-  gamlss(rvar ~ cov[,-c(2,3,8,9,11)], sigma.formula = ~ 1, family = RUBXII(), trace = F, method = RS(),
+                   control = gamlss.control(n.cyc = 200,trace = F))
+fit7 <- extract_fit(mod_UBURR)
+
+summary(mod_UBURR)
+
+# residual analisys
+plot(mod_UBURR)
+shapiro.test(mod_UBURR$residuals)
+wp(mod_UBURR)
+
+
+# Summary of fits
 names <- c(
-  "Beta", "Simplex", "UGamma", "UWeibull", "Kumaraswamy", "UQChen"
+  "Beta", "Simplex", "UGamma", "UWeibull", "Kumaraswamy", "UQChen", "UBURRXII"
 )
-results <- matrix(NA, ncol = 3, nrow = 6)
-colnames(results) <- c("GD", "AIC", "SBC")
+results <- matrix(NA, ncol = 4, nrow = 7)
+colnames(results) <- c("GD", "AIC", "SBC","Pseudo-R2")
 rownames(results) <- names
 
 results[1, ] <- fit1
@@ -183,6 +246,7 @@ results[3, ] <- fit3
 results[4, ] <- fit4
 results[5, ] <- fit5
 results[6, ] <- fit6
+results[7, ] <- fit7
 
 results
 
